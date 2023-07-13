@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+		<style type="text/css">
+			html,
+			body {
+				width: 100%;
+				height: 100%;
+				margin: 0;
+				padding: 0;
+        background-color:#2b2e33;
+				overflow: hidden;
+				background-repeat: no-repeat;
+        background-position: center center;
+        background-size: 100% 100%;
+				background-attachment: scroll;
+				background-image: url("");
+			}
+
+      #editor {
+        margin: 0;
+        opacity: 1;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1;
+        background-color: (#1f2125);
+        background: transparent!important;
+    }
+
+    :root {
+      --color: #1f2125;
+      --color2: #2b2e33;
+      --color3: #292b30;
+    }
+ 
+    .ace_gutter {
+      background: var(--color)!important;
+    }
+
+    .ace_active-line {
+      background: var(--color)!important
+    }
+
+    .ace_print-margin {
+      background: var(--color)!important
+    }
+
+    .ace_marker-layer .ace_active-line {
+      background: var(--color)!important
+    }
+
+    .ace_gutter-active-line {
+      background: var(--color2)!important
+    }
+
+    .ace_selection {
+      background: var(--color3)!important
+    }
+
+    .ace_selected-word {
+      background: var(--color3)!important
+    }
+  
+    .ace_gutter-cell {
+      background:transparent;
+      color: #2b2e33;
+    }
+
+    ::-webkit-scrollbar {
+      background: transparent;
+      height: 5px;
+      width: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #2b2e33;
+      border-radius: 0px;
+    }
+  </style>
+  <script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
+  <script src="ace/ext-language_tools.js"></script>
+</head>
+    <pre id="editor"></pre>
+    <script>
+        var GetText;
+        var SetText;
+        var ClearText;
+        var SetTheme;
+
+        ace.require("ace/ext/language_tools");
+        var editor = ace.edit("editor");
+        editor.setTheme("ace/theme/ambiance");
+        editor.session.setMode("ace/mode/lua");
+        editor.setOption("enableLiveAutocompletion", true);
+        editor.setOption("cursorStyle", "smooth");
+        editor.setShowPrintMargin(false);
+        document.getElementById('editor').style.fontSize='13px';
+
+        /* do not edit below - Synapse X internal code */
+        GetText = function()
+        {
+            return editor.getValue();
+        }
+
+        SetText = function(x)
+        {
+          editor.setValue(x);
+          editor.session.setValue(x);
+        }
+
+        ClearText = function()
+        {
+          editor.setValue("");
+        }
+
+        SetTheme = function(th)
+        {
+          editor.setTheme("ace/theme/" + th);
+        }
+
+        editor.on("input", async function() 
+        {
+          await CefSharp.BindObjectAsync("synServiceAsync");
+
+          synServiceAsync.textChanged(editor.getValue());
+        });
+
+        document.addEventListener('keydown', async e => 
+        {
+          if (e.ctrlKey) 
+          {
+            if (e.key === 's')
+            {
+              e.preventDefault();
+
+              await CefSharp.BindObjectAsync("synServiceAsync");
+
+              synServiceAsync.saveRequest(editor.getValue());
+            }
+            else if (e.key === 'o')
+            {
+              e.preventDefault();
+
+              await CefSharp.BindObjectAsync("synServiceAsync");
+
+              synServiceAsync.openRequest();
+            }
+          }
+        });
+
+        document.oncontextmenu = function()
+        {
+          return false;
+        }
+    </script>
+  </body>
+</html>
